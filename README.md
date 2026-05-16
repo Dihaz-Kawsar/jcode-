@@ -36,6 +36,11 @@ Built for multi-session workflows, infinite customizability, and performance.
 curl -fsSL https://raw.githubusercontent.com/1jehuang/jcode/master/scripts/install.sh | bash
 ```
 
+Then run `dihaz` (alias `jcode`) to get started.
+
+**Debian 13:** prebuilt Linux binaries should run out of the box. For source builds, install
+`build-essential`, `pkg-config`, and `libssl-dev`.
+
 Need Windows, Homebrew, source builds, provider setup, or tell your agent to set it up for you?
 [Jump to detailed installation](#detailed-installation).
 
@@ -322,6 +327,10 @@ jcode works with subscription-backed OAuth flows and many provider integrations,
 - **Ollama** (`jcode login --provider ollama`)
 - **Custom OpenAI-compatible endpoint** (`jcode login --provider openai-compatible`)
 
+Ollama local models (including Modelfile creations) are supported. Set `OLLAMA_MODEL` (or
+`JCODE_OLLAMA_DEFAULT_MODEL`) to your model name, and set `OLLAMA_HOST`/`JCODE_OLLAMA_API_BASE`
+if your Ollama daemon is not running on the default `http://localhost:11434` endpoint.
+
 For custom OpenAI-compatible endpoints, jcode now prompts for the API base and supports local localhost servers without requiring an API key.
 
 ### Config-file setup for self-hosted endpoints and MCP
@@ -535,23 +544,23 @@ Build speed improvements: An incremental debug cargo build with cache enabled ta
 
 ```bash
 # Launch the TUI
-jcode
+dihaz
 
 # Run a single command non-interactively
-jcode run "say hello"
+dihaz run "say hello"
 
 # Resume a previous session by memorable name
-jcode --resume fox
+dihaz --resume fox
 
 # Run as a persistent background server, then attach more clients
-jcode serve
-jcode connect
+dihaz serve
+dihaz connect
 
 # Send voice input from your configured STT command
-jcode dictate
+dihaz dictate
 ```
 
-jcode supports interactive TUI use, non-interactive runs, persistent server/client workflows,
+dihaz supports interactive TUI use, non-interactive runs, persistent server/client workflows,
 and hotkey-friendly dictation without requiring a bundled speech-to-text stack.
 
 <div align="center">

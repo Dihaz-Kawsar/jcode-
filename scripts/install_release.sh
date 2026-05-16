@@ -81,11 +81,13 @@ printf '%s\n' "$hash" > "$builds_dir/current-version"
 install_dir="${JCODE_INSTALL_DIR:-$HOME/.local/bin}"
 mkdir -p "$install_dir"
 ln -sfn "$current_dir/jcode" "$install_dir/jcode"
+ln -sfn "$current_dir/jcode" "$install_dir/dihaz"
 
 echo "Installed: $version_dir/jcode"
 echo "Updated stable symlink: $stable_dir/jcode -> $version_dir/jcode"
 echo "Updated current symlink: $current_dir/jcode -> $version_dir/jcode"
 echo "Updated launcher symlink: $install_dir/jcode -> $current_dir/jcode"
+echo "Updated launcher symlink: $install_dir/dihaz -> $current_dir/jcode"
 
 if ! echo "$PATH" | tr ':' '\n' | grep -qx "$install_dir"; then
   echo ""

@@ -31,6 +31,33 @@ pub fn resolve_openai_compatible_profile(
         requires_api_key: profile.requires_api_key,
     };
 
+    if profile.id == OLLAMA_PROFILE.id {
+        if let Some(base) = env_override_for_profile("JCODE_OLLAMA_API_BASE", profile.env_file)
+            .or_else(|| env_override_for_profile("OLLAMA_HOST", profile.env_file))
+        {
+            if let Some(normalized) = normalize_ollama_api_base(&base) {
+                resolved.api_base = normalized;
+            } else {
+                eprintln!(
+                    "Warning: ignoring invalid OLLAMA_HOST/JCODE_OLLAMA_API_BASE '{}'. Use https://... or http://localhost.",
+                    base
+                );
+            }
+        }
+
+        if let Some(model) =
+            env_override_for_profile("JCODE_OLLAMA_DEFAULT_MODEL", profile.env_file)
+                .or_else(|| env_override_for_profile("JCODE_OLLAMA_MODEL", profile.env_file))
+                .or_else(|| env_override_for_profile("OLLAMA_MODEL", profile.env_file))
+        {
+            resolved.default_model = Some(model);
+        }
+
+        if api_base_uses_localhost(&resolved.api_base) {
+            resolved.requires_api_key = false;
+        }
+    }
+
     if profile.id != OPENAI_COMPAT_PROFILE.id {
         return resolved;
     }
@@ -861,11 +888,25 @@ pub fn save_env_value_to_env_file(
 }
 
 fn env_override(name: &str) -> Option<String> {
+    env_override_for_profile(name, OPENAI_COMPAT_PROFILE.env_file)
+}
+
+fn env_override_for_profile(name: &str, env_file: &str) -> Option<String> {
     std::env::var(name)
         .ok()
         .map(|v| v.trim().to_string())
         .filter(|v| !v.is_empty())
-        .or_else(|| load_env_value_from_env_or_config(name, OPENAI_COMPAT_PROFILE.env_file))
+        .or_else(|| load_env_value_from_env_or_config(name, env_file))
+}
+
+fn normalize_ollama_api_base(raw: &str) -> Option<String> {
+    let normalized = normalize_api_base(raw)?;
+    let parsed = url::Url::parse(&normalized).ok()?;
+    let path = parsed.path();
+    if path.is_empty() || path == "/" {
+        return Some(format!("{}/v1", normalized));
+    }
+    Some(normalized)
 }
 
 fn dedup_sources(sources: Vec<(String, String)>) -> Vec<(String, String)> {
