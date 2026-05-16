@@ -122,6 +122,25 @@ fn auth_issue_lan_openai_compatible_bases_are_valid_for_local_model_servers() {
 }
 
 #[test]
+fn ollama_profile_respects_host_and_model_overrides() {
+    let _lock = crate::storage::lock_test_env();
+    let _guard = EnvGuard::save(&[
+        "OLLAMA_HOST",
+        "OLLAMA_MODEL",
+        "JCODE_OLLAMA_API_BASE",
+        "JCODE_OLLAMA_DEFAULT_MODEL",
+        "JCODE_OLLAMA_MODEL",
+    ]);
+
+    crate::env::set_var("OLLAMA_HOST", "http://localhost:11434");
+    crate::env::set_var("OLLAMA_MODEL", "dihaz-modelfile");
+
+    let resolved = resolve_openai_compatible_profile(OLLAMA_PROFILE);
+    assert_eq!(resolved.api_base, "http://localhost:11434/v1");
+    assert_eq!(resolved.default_model.as_deref(), Some("dihaz-modelfile"));
+}
+
+#[test]
 fn auth_issue_runtime_display_name_tracks_direct_compatible_profiles() {
     let _lock = crate::storage::lock_test_env();
     let _guard = EnvGuard::save(&[

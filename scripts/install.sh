@@ -60,21 +60,25 @@ fi
 stable_dir="$builds_dir/stable"
 current_dir="$builds_dir/current"
 version_dir="$builds_dir/versions"
-launcher_path="$INSTALL_DIR/jcode${EXE}"
+launcher_name="dihaz${EXE}"
+launcher_path="$INSTALL_DIR/$launcher_name"
+legacy_launcher_path="$INSTALL_DIR/jcode${EXE}"
 
 EXISTING=""
 if [ -x "$launcher_path" ]; then
   EXISTING=$("$launcher_path" --version 2>/dev/null | head -1 || echo "unknown")
+elif [ -x "$legacy_launcher_path" ]; then
+  EXISTING=$("$legacy_launcher_path" --version 2>/dev/null | head -1 || echo "unknown")
 fi
 
 if [ -n "$EXISTING" ]; then
   if echo "$EXISTING" | grep -qF "${VERSION#v}"; then
-    info "jcode $VERSION is already installed — reinstalling"
+    info "dihaz $VERSION is already installed — reinstalling"
   else
-    info "Updating jcode $EXISTING → $VERSION"
+    info "Updating dihaz $EXISTING → $VERSION"
   fi
 else
-  info "Installing jcode $VERSION"
+  info "Installing dihaz $VERSION"
 fi
 info "  launcher: $launcher_path"
 
@@ -127,10 +131,12 @@ if [ "$IS_WINDOWS" = true ]; then
   cp -f "$dest_version_dir/$bin_name" "$stable_dir/$bin_name"
   printf '%s\n' "$version" > "$builds_dir/stable-version"
   cp -f "$stable_dir/$bin_name" "$launcher_path"
+  cp -f "$stable_dir/$bin_name" "$legacy_launcher_path"
 else
   ln -sfn "$dest_version_dir/$bin_name" "$stable_dir/$bin_name"
   printf '%s\n' "$version" > "$builds_dir/stable-version"
   ln -sfn "$stable_dir/$bin_name" "$launcher_path"
+  ln -sfn "$stable_dir/$bin_name" "$legacy_launcher_path"
 fi
 
 if [ "$(uname -s)" = "Darwin" ]; then
@@ -148,16 +154,16 @@ fi
 if [ "$IS_WINDOWS" = true ]; then
   win_install_dir=$(cygpath -w "$INSTALL_DIR" 2>/dev/null || echo "$INSTALL_DIR")
   echo ""
-  info "✅ jcode $VERSION installed successfully!"
+  info "✅ dihaz $VERSION installed successfully!"
   echo ""
-  if command -v jcode >/dev/null 2>&1; then
-    info "Run 'jcode' to get started."
+  if command -v dihaz >/dev/null 2>&1; then
+    info "Run 'dihaz' to get started."
   else
-    echo "  To start using jcode right now, run:"
+    echo "  To start using dihaz right now, run:"
     echo ""
-    printf '    \033[1;32mexport PATH="%s:$PATH" && jcode\033[0m\n' "$INSTALL_DIR"
+    printf '    \033[1;32mexport PATH="%s:$PATH" && dihaz\033[0m\n' "$INSTALL_DIR"
     echo ""
-    echo "  To add jcode to PATH permanently (PowerShell):"
+    echo "  To add dihaz to PATH permanently (PowerShell):"
     echo ""
     printf '    \033[1;32m[Environment]::SetEnvironmentVariable("Path", "%s;" + [Environment]::GetEnvironmentVariable("Path", "User"), "User")\033[0m\n' "$win_install_dir"
   fi
@@ -191,7 +197,7 @@ else
 
     for rc in "${path_files[@]}"; do
       if [ ! -f "$rc" ] || ! grep -qF "$INSTALL_DIR" "$rc" 2>/dev/null; then
-        printf '\n# Added by jcode installer\n%s\n' "$PATH_LINE" >> "$rc"
+        printf '\n# Added by dihaz installer\n%s\n' "$PATH_LINE" >> "$rc"
         added_to="$added_to $rc"
       fi
     done
@@ -200,7 +206,7 @@ else
   fi
 
   echo ""
-  info "✅ jcode $VERSION installed successfully!"
+  info "✅ dihaz $VERSION installed successfully!"
   echo ""
 
   if [ "$(uname -s)" = "Darwin" ]; then
@@ -211,13 +217,13 @@ else
     fi
   fi
 
-  if command -v jcode >/dev/null 2>&1; then
-    info "Run 'jcode' to get started."
+  if command -v dihaz >/dev/null 2>&1; then
+    info "Run 'dihaz' to get started."
   else
-    echo "  To start using jcode right now, run:"
+    echo "  To start using dihaz right now, run:"
     echo ""
-    printf '    \033[1;32mexport PATH="%s:\$PATH" && jcode\033[0m\n' "$INSTALL_DIR"
+    printf '    \033[1;32mexport PATH="%s:\$PATH" && dihaz\033[0m\n' "$INSTALL_DIR"
     echo ""
-    echo "  Future terminal sessions will have jcode on PATH automatically."
+    echo "  Future terminal sessions will have dihaz on PATH automatically."
   fi
 fi
